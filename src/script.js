@@ -2,6 +2,7 @@ import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { DoubleSide, Group } from 'three'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 
 
@@ -58,7 +59,7 @@ const cloudCluster = new Group()
 cloudCluster.add(cloud, cloud2)
 scene.add(cloudCluster)
 
-// Tree Population
+/*  Tree Population
 
 for (let i = 0; i < 1000; i++) {
 
@@ -86,6 +87,24 @@ for (let i = 0; i < 1000; i++) {
 
     scene.add(tree)
 }
+
+*/
+
+// GLTF Loader
+
+const gltfLoader = new GLTFLoader();
+
+gltfLoader.load('/tree.glb', (gltfScene) => {
+
+    gltfScene.scene.scale.set(.1,.1,.1) 
+
+    gltfScene.scene.position.x = 0;			    
+    gltfScene.scene.position.y = 0;	
+	gltfScene.scene.position.z = 0;	
+
+    scene.add(gltfScene.scene)
+    console.log('loaded')
+})
 
 // Ground
 
