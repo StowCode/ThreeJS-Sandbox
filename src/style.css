@@ -1,5 +1,4 @@
 * {
-    background-color:gray;
     color: white;
     margin: 0;
     padding: 0;
@@ -8,10 +7,10 @@
 html,
 body {
     overflow: hidden;
+    width: 100%;
 }
 
 .webgl {
-   
     top: 0;
     left: 0;
     outline: none;
@@ -19,4 +18,8 @@ body {
 
 h1 {
     z-index: 10;
+    background: none;
+    position: fixed;
+    color: rgba(255,255,255,.8);
+    text-align: center;
 }

@@ -59,7 +59,7 @@ const cloudCluster = new Group()
 cloudCluster.add(cloud, cloud2)
 scene.add(cloudCluster)
 
-/*  Tree Population
+/* Randomized Tree Population
 
 for (let i = 0; i < 1000; i++) {
 
@@ -87,24 +87,46 @@ for (let i = 0; i < 1000; i++) {
 
     scene.add(tree)
 }
-
 */
 
 // GLTF Loader
 
+    // Tree
+
+
 const gltfLoader = new GLTFLoader();
+
+for (let i=0; i<600; i++) {
 
 gltfLoader.load('/tree.glb', (gltfScene) => {
 
-    gltfScene.scene.scale.set(.1,.1,.1) 
+        gltfScene.scene.scale.set(.2,.3,.2) 
 
-    gltfScene.scene.position.x = 0;			    
-    gltfScene.scene.position.y = 0;	
-	gltfScene.scene.position.z = 0;	
+        gltfScene.scene.position.x = (Math.random() -.5) * 50;			    
+        gltfScene.scene.position.y = 0;	
+        gltfScene.scene.position.z = (Math.random() -.5) * 50;
 
-    scene.add(gltfScene.scene)
-    console.log('loaded')
-})
+        gltfScene.scene.rotateY(Math.PI / 2 * (Math.random() *2))
+
+        scene.add(gltfScene.scene)
+    })
+}
+    
+
+
+    // Birds
+
+    gltfLoader.load('/birds2.glb', (birds) => {
+
+    birds.scene.scale.set(2,2,2)
+        
+    birds.scene.position.x = 5;			    
+    birds.scene.position.y = 8;	
+    birds.scene.position.z = 0;
+
+    scene.add(birds.scene)
+    })
+
 
 // Ground
 
@@ -167,7 +189,7 @@ scene.add(new THREE.AmbientLight(0xffffff,0.3))
 const camera = new THREE.PerspectiveCamera(100, sizes.width / sizes.height, .0001, 10000)
 camera.position.z = 15
 camera.position.x = 0
-camera.position.y = 5
+camera.position.y = 20
 scene.add(camera)
 
 
