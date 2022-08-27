@@ -26,7 +26,7 @@ const GroundMaterial = new THREE.MeshLambertMaterial({map: GroundTexture })
 const TreeMaterial = new THREE.MeshLambertMaterial({map: TreeTexture})
 const TreeTopMaterial = new THREE.MeshPhongMaterial({ color: 'green', flatShading: true})
 
-// Clouds
+/* Clouds (From Scratch using Groups)
 
 const tuft1geometry = new THREE.TetrahedronBufferGeometry(1.7, 6)
 tuft1geometry.translate(-2,0,0)
@@ -58,6 +58,8 @@ cloud2.scale.set(.3, .3, .3)
 const cloudCluster = new Group()
 cloudCluster.add(cloud, cloud2)
 scene.add(cloudCluster)
+
+*/
 
 /* Randomized Tree Population
 
@@ -96,22 +98,44 @@ for (let i = 0; i < 1000; i++) {
 
 const gltfLoader = new GLTFLoader();
 
-for (let i=0; i<600; i++) {
+for (let i=0; i<400; i++) {
 
 gltfLoader.load('/tree.glb', (gltfScene) => {
 
         gltfScene.scene.scale.set(.2,.3,.2) 
 
-        gltfScene.scene.position.x = (Math.random() -.5) * 50;			    
+        gltfScene.scene.position.x = (Math.random() -.5) * 100;			    
         gltfScene.scene.position.y = 0;	
-        gltfScene.scene.position.z = (Math.random() -.5) * 50;
+        gltfScene.scene.position.z = (Math.random() -.5) * 100;
 
         gltfScene.scene.rotateY(Math.PI / 2 * (Math.random() *2))
 
         scene.add(gltfScene.scene)
     })
 }
-    
+    // Sketchfab Cloud
+
+    gltfLoader.load('/cloud.glb', (cloud) => {
+        cloud.scene.scale.set(3,3,3)
+
+        cloud.scene.position.x = 0
+        cloud.scene.position.y = 20
+        cloud.scene.position.z = -15
+
+        scene.add(cloud.scene)
+    })
+
+    // Mountain
+
+    gltfLoader.load('/low_poly_mountain.glb', (mountain) => {
+        mountain.scene.scale.set(.5,.5,.5)
+
+        mountain.scene.position.x = 100
+        mountain.scene.position.y = -55
+        mountain.scene.position.z = 100
+
+        scene.add(mountain.scene)
+    })
 
 
     // Birds
@@ -127,10 +151,23 @@ gltfLoader.load('/tree.glb', (gltfScene) => {
     scene.add(birds.scene)
     })
 
+    // Campfire
+
+    gltfLoader.load('/army_campfire_01.glb', (fire) => {
+        fire.scene.scale.set(1,1,1)
+
+        fire.scene.position.x = 0;
+        fire.scene.position.y = 0;
+        fire.scene.position.z = 0;
+
+        scene.add(fire.scene)
+        console.log('fire')
+    })
+
 
 // Ground
 
-const groundGeometry = new THREE.PlaneGeometry(50,50)
+const groundGeometry = new THREE.PlaneGeometry(150,150)
 groundGeometry.rotateX(Math.PI / 2 * -45)
 
 const groundPlane = new THREE.Mesh(groundGeometry, GroundMaterial)
@@ -198,7 +235,7 @@ const renderer = new THREE.WebGLRenderer({
     canvas: canvas
 })
 renderer.setSize(sizes.width, sizes.height)
-
+scene.background = new THREE.Color(0x87ceeb)
 renderer.render(scene, camera)
 
 
@@ -206,6 +243,8 @@ renderer.render(scene, camera)
 
 const controls = new OrbitControls( camera, canvas)
 controls.enambleDamping = true
+controls.minDistance = 1
+// controls.maxDistance = 25
 controls.update()
 
 
