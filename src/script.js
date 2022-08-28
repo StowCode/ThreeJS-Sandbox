@@ -1,6 +1,6 @@
 import './style.css'
 import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { OrbitControls, FirstPersonControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { DoubleSide, Group } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
@@ -93,26 +93,81 @@ for (let i = 0; i < 1000; i++) {
 
 // GLTF Loader
 
-    // Tree
-
+    // Tree Spawn Far
 
 const gltfLoader = new GLTFLoader();
 
-for (let i=0; i<400; i++) {
+for (let i=0; i<1000; i++) {
 
 gltfLoader.load('/tree.glb', (gltfScene) => {
 
         gltfScene.scene.scale.set(.2,.3,.2) 
 
-        gltfScene.scene.position.x = (Math.random() -.5) * 100;			    
+        gltfScene.scene.position.x = (Math.random() -.5) * 300;			    
         gltfScene.scene.position.y = 0;	
-        gltfScene.scene.position.z = (Math.random() -.5) * 100;
+        gltfScene.scene.position.z = (Math.random() -.5) * 100 + -100;
 
         gltfScene.scene.rotateY(Math.PI / 2 * (Math.random() *2))
 
         scene.add(gltfScene.scene)
     })
 }
+
+        // Tree Spawn Close
+
+        for (let i=0; i<1000; i++) {
+
+            gltfLoader.load('/tree.glb', (gltfScene) => {
+            
+                    gltfScene.scene.scale.set(.2,.3,.2) 
+            
+                    gltfScene.scene.position.x = (Math.random() -.5) * 300;			    
+                    gltfScene.scene.position.y = 0;	
+                    gltfScene.scene.position.z = (Math.random() -.5) * 100 + 100;
+            
+                    gltfScene.scene.rotateY(Math.PI / 2 * (Math.random() *2))
+            
+                    scene.add(gltfScene.scene)
+                })
+            }
+
+            // Tree Spawn Left
+
+            for (let i=0; i<300; i++) {
+
+                gltfLoader.load('/tree.glb', (gltfScene) => {
+                
+                        gltfScene.scene.scale.set(.2,.3,.2) 
+                
+                        gltfScene.scene.position.x = (Math.random() -.5) * 120 - 80;			    
+                        gltfScene.scene.position.y = 0;	
+                        gltfScene.scene.position.z = (Math.random() -.5) * 100;
+                
+                        gltfScene.scene.rotateY(Math.PI / 2 * (Math.random() *2))
+                
+                        scene.add(gltfScene.scene)
+                    })
+                }
+
+            // Tree Spawn Right
+
+            for (let i=0; i<300; i++) {
+
+                gltfLoader.load('/tree.glb', (gltfScene) => {
+                
+                        gltfScene.scene.scale.set(.2,.3,.2) 
+                
+                        gltfScene.scene.position.x = (Math.random() -.5) * 120 + 80;			    
+                        gltfScene.scene.position.y = 0;	
+                        gltfScene.scene.position.z = (Math.random() -.5) * 100;
+                
+                        gltfScene.scene.rotateY(Math.PI / 2 * (Math.random() *2))
+                
+                        scene.add(gltfScene.scene)
+                    })
+                }
+
+
     // Sketchfab Cloud
 
     gltfLoader.load('/cloud.glb', (cloud) => {
@@ -165,15 +220,29 @@ gltfLoader.load('/tree.glb', (gltfScene) => {
     })
 
 
-// Ground
+// Ground Planes
 
-const groundGeometry = new THREE.PlaneGeometry(150,150)
+const groundGeometry = new THREE.PlaneGeometry(100,100)
 groundGeometry.rotateX(Math.PI / 2 * -45)
 
 const groundPlane = new THREE.Mesh(groundGeometry, GroundMaterial)
+const groundPlane2 = new THREE.Mesh(groundGeometry, GroundMaterial)
+groundPlane2.position.x = 100
+const groundPlane3 = new THREE.Mesh(groundGeometry, GroundMaterial)
+groundPlane3.position.x = -100
+
+const LargeGroundGeometry = new THREE.PlaneGeometry(300,100)
+LargeGroundGeometry.rotateX(Math.PI / 2 * -45)
+
+const groundPlane4 = new THREE.Mesh(LargeGroundGeometry, GroundMaterial)
+groundPlane4.position.z = 100
+
+const groundPlane5 = new THREE.Mesh(LargeGroundGeometry, GroundMaterial)
+groundPlane5.position.z = -100
+
+scene.add(groundPlane, groundPlane2, groundPlane3, groundPlane4, groundPlane5)
 
 
-scene.add(groundPlane)
 
 /**
  * Sizes
@@ -219,8 +288,10 @@ const light = new THREE.DirectionalLight( 0xffffff, .8 );
 const sunsetLight = new THREE.DirectionalLight ( 0xff5566, 0.7)
 sunsetLight.position.set(-3, -1, 0)
 
+
+
 scene.add( light, sunsetLight );
-scene.add(new THREE.AmbientLight(0xffffff,0.3))
+scene.add(new THREE.AmbientLight(0xffffff,0.5))
 
 // Camera
 const camera = new THREE.PerspectiveCamera(100, sizes.width / sizes.height, .0001, 10000)
@@ -268,3 +339,4 @@ tick()
 
 
 
+// First Person Controls
