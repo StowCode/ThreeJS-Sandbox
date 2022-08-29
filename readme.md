@@ -1,4 +1,6 @@
-# Three.js Journey
+This is a Three.JS Sandbox being used to learn and develop 
+components for a revamped interactive portfolio.
+
 
 ## Setup
 Download [Node.js](https://nodejs.org/en/download/).

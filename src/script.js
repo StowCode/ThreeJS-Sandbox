@@ -1,3 +1,14 @@
+/* 
+
+Need: 
+3D Text with Physics Engine
+First Person Controls
+ClickPoint Camera
+
+*/
+
+
+
 import './style.css'
 import * as THREE from 'three'
 import { OrbitControls, FirstPersonControls } from 'three/examples/jsm/controls/OrbitControls.js'
@@ -21,10 +32,27 @@ TreeTexture.wrapT = TreeTexture.wrapS = THREE.RepeatWrapping
 TreeTexture.repeat.set(4, 10)
 
 // Materials
-const CloudMaterial = new THREE.MeshPhongMaterial({ color: 'white', flatShading: true, })
-const GroundMaterial = new THREE.MeshLambertMaterial({map: GroundTexture })
+const CloudMaterial = new THREE.MeshPhongMaterial({ 
+    color: 'white', 
+    /*flatShading: true,*/
+     opacity: .5,
+     transparent: true,
+})
+
+
+
+const GroundMaterial = new THREE.MeshLambertMaterial({color: '#567D46', side: THREE.DoubleSide })
 const TreeMaterial = new THREE.MeshLambertMaterial({map: TreeTexture})
 const TreeTopMaterial = new THREE.MeshPhongMaterial({ color: 'green', flatShading: true})
+
+//
+
+const sphereGeometry = new THREE.SphereGeometry()
+const sphere = new THREE.Mesh(sphereGeometry, CloudMaterial)
+sphere.position.y = 5
+sphere.castShadow = true;
+scene.add(sphere)
+
 
 /* Clouds (From Scratch using Groups)
 
@@ -186,7 +214,7 @@ gltfLoader.load('/tree.glb', (gltfScene) => {
         mountain.scene.scale.set(.5,.5,.5)
 
         mountain.scene.position.x = 100
-        mountain.scene.position.y = -55
+        mountain.scene.position.y = -54
         mountain.scene.position.z = 100
 
         scene.add(mountain.scene)
@@ -203,6 +231,8 @@ gltfLoader.load('/tree.glb', (gltfScene) => {
     birds.scene.position.y = 8;	
     birds.scene.position.z = 0;
 
+    // birds.scene.castShadow = true
+
     scene.add(birds.scene)
     })
 
@@ -216,16 +246,30 @@ gltfLoader.load('/tree.glb', (gltfScene) => {
         fire.scene.position.z = 0;
 
         scene.add(fire.scene)
-        console.log('fire')
     })
 
+    /* Grass Clumps
+
+for (let i=0; i<100; i++) {
+    gltfLoader.load('/low_poly_grass_clump.glb', (grass) => {
+        grass.scene.scale.set(.6,.6,.6)
+
+        grass.scene.position.x = (Math.random() -.5) * 25;
+        grass.scene.position.z = (Math.random() -.5) * 25;
+
+        scene.add(grass.scene)
+    })
+}
+
+*/
 
 // Ground Planes
 
-const groundGeometry = new THREE.PlaneGeometry(100,100)
+const groundGeometry = new THREE.PlaneGeometry(100,100,)
 groundGeometry.rotateX(Math.PI / 2 * -45)
 
 const groundPlane = new THREE.Mesh(groundGeometry, GroundMaterial)
+groundPlane.receiveShadow = true
 const groundPlane2 = new THREE.Mesh(groundGeometry, GroundMaterial)
 groundPlane2.position.x = 100
 const groundPlane3 = new THREE.Mesh(groundGeometry, GroundMaterial)
@@ -283,15 +327,31 @@ window.addEventListener('dblclick', () => {
 })
 // Lights
 
-const light = new THREE.DirectionalLight( 0xffffff, .8 );
+const light = new THREE.DirectionalLight( 0xffffff, 1 );
+light.position.set(10,50,10)
+
+    // Shadows
+    light.castShadow = true
+    light.shadow.mapSize.width = 500; // default
+    light.shadow.mapSize.height = 500; // default
+    light.shadow.camera.near = 0.5; // default
+    light.shadow.camera.far = 500; // default
+
+    light.shadow.camera.top = 50
+    light.shadow.camera.right = 50
+    light.shadow.camera.bottom = -50
+    light.shadow.camera.left = -50
+    
 
 const sunsetLight = new THREE.DirectionalLight ( 0xff5566, 0.7)
 sunsetLight.position.set(-3, -1, 0)
-
-
+sunsetLight.castShadow = true
 
 scene.add( light, sunsetLight );
-scene.add(new THREE.AmbientLight(0xffffff,0.5))
+// scene.add(new THREE.AmbientLight(0xffffff,0.3))
+
+const helper = new THREE.CameraHelper(light.shadow.camera)
+scene.add(helper)
 
 // Camera
 const camera = new THREE.PerspectiveCamera(100, sizes.width / sizes.height, .0001, 10000)
@@ -305,10 +365,11 @@ scene.add(camera)
 const renderer = new THREE.WebGLRenderer({
     canvas: canvas
 })
+renderer.shadowMap.enabled = true
 renderer.setSize(sizes.width, sizes.height)
 scene.background = new THREE.Color(0x87ceeb)
 renderer.render(scene, camera)
-
+    
 
 // Controls
 
@@ -324,6 +385,8 @@ const clock = new THREE.Clock()
 
 const tick = () => {
     const elapsedTime = clock.getElapsedTime()
+    // Move Sphere
+    sphere.position.x += Math.sin(elapsedTime) * .3
 
     // Update Controls
     controls.update()
