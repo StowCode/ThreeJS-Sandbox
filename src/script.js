@@ -1,12 +1,3 @@
-/* 
-
-Need: 
-3D Text with Physics Engine
-First Person Controls
-ClickPoint Camera
-
-*/
-
 
 
 import './style.css'
@@ -14,7 +5,8 @@ import * as THREE from 'three'
 import { OrbitControls, FirstPersonControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { DoubleSide, Group } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-
+import { gsap } from 'gsap'
+import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js'
 
 
 const canvas = document.querySelector('.webgl')
@@ -343,8 +335,8 @@ light.position.set(10,50,10)
     light.shadow.camera.left = -50
     
 
-const sunsetLight = new THREE.DirectionalLight ( 0xff5566, 0.7)
-sunsetLight.position.set(-3, -1, 0)
+const sunsetLight = new THREE.DirectionalLight ( 0xff5566, 0.8)
+sunsetLight.position.set(-10, 0, 0)
 sunsetLight.castShadow = true
 
 scene.add( light, sunsetLight );
@@ -360,6 +352,12 @@ camera.position.x = 0
 camera.position.y = 20
 scene.add(camera)
 
+canvas.addEventListener('click', cameraUpdate)
+
+function cameraUpdate() {
+    camera.position.z += 4
+}
+
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({
@@ -372,13 +370,34 @@ renderer.render(scene, camera)
     
 
 // Controls
-
 const controls = new OrbitControls( camera, canvas)
 controls.enambleDamping = true
 controls.minDistance = 1
 // controls.maxDistance = 25
 controls.update()
 
+/////////////////////////////////////////////////////////////////////////
+//// INTRO CAMERA ANIMATION USING TWEEN
+/*
+function introAnimation() {
+    // controls.enabled = false //disable orbit controls to animate the camera
+    
+    new TWEEN.Tween(camera.position.set(0,20,15 ))
+    .to({x: 10,y: 20, z: 50 }, 6500) // new position and time to animate
+    .delay(1000)
+    .easing(TWEEN.Easing.Quartic.InOut)
+    .start() // define delay, easing
+}
+
+introAnimation() // call intro animation on start
+
+
+/* 
+You can see on this link the boilerplate. 
+See the function introAnimation? I'm calling it when the experience starts. 
+If you want to animate the camera on html click, just add a javascript event listener 
+to the button and call that function. No theeejs involved in this. Just pure javascript, okay?
+*/
 
 // Animate (This is needed to controls to work)
 const clock = new THREE.Clock()
@@ -386,7 +405,7 @@ const clock = new THREE.Clock()
 const tick = () => {
     const elapsedTime = clock.getElapsedTime()
     // Move Sphere
-    sphere.position.x += Math.sin(elapsedTime) * .3
+    // sphere.position.x += Math.sin(elapsedTime) * .3
 
     // Update Controls
     controls.update()
