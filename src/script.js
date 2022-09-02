@@ -1,17 +1,106 @@
-
+// https://github.com/danielblagy/three_mmi
 
 import './style.css'
 import * as THREE from 'three'
-import { OrbitControls, FirstPersonControls } from 'three/examples/jsm/controls/OrbitControls.js'
+
+import MouseMeshInteraction from 'three-mmi'
+import * as THREEx from 'threex.domevents'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls'
+import { FlyControls } from 'three/examples/jsm/controls/FlyControls'
 import { DoubleSide, Group } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { gsap } from 'gsap'
 import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js'
+import { EventDispatcher } from 'three'
 
 
 const canvas = document.querySelector('.webgl')
 
 const scene = new THREE.Scene()
+
+/**
+ * Sizes
+ */
+ const sizes = {
+    width: window.innerWidth,
+    height: window.innerHeight
+}
+
+window.addEventListener('resize', () => {
+    //Update Sizes
+    sizes.width = window.innerWidth,
+    sizes.height = window.innerHeight
+
+    // Update Camera
+    camera.aspect = sizes.width / sizes.height
+
+    // Update Projections
+    camera.updateProjectionMatrix()
+
+    //Update Renderer
+    renderer.setSize(sizes.width, sizes.height)
+
+    // Pixel Ratio
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)) // Caps the pixel ratio at 2
+})
+
+// Double Click for Full Screen Switch
+window.addEventListener('dblclick', () => {
+    if (!document.fullscreenElement) 
+    {
+        canvas.requestFullscreen()
+    }
+        else 
+    {
+        document.exitFullscreen()
+    }
+})
+// Lights
+
+const light = new THREE.DirectionalLight( 0xffffff, 1 );
+light.position.set(10,50,10)
+
+    // Shadows
+    light.castShadow = true
+    light.shadow.mapSize.width = 500; // default
+    light.shadow.mapSize.height = 500; // default
+    light.shadow.camera.near = 0.5; // default
+    light.shadow.camera.far = 500; // default
+
+    light.shadow.camera.top = 50
+    light.shadow.camera.right = 50
+    light.shadow.camera.bottom = -50
+    light.shadow.camera.left = -50
+    
+
+const sunsetLight = new THREE.DirectionalLight ( 0xff5566, 1)
+sunsetLight.position.set(-10, 3, 0)
+sunsetLight.castShadow = true
+
+scene.add( light, sunsetLight );
+// scene.add(new THREE.AmbientLight(0xffffff,0.3))
+
+const helper = new THREE.CameraHelper(light.shadow.camera)
+scene.add(helper)
+
+
+// Camera
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, .1, 1000)
+camera.position.set(0,10,20)
+scene.add(camera)
+
+
+
+// Renderer
+const renderer = new THREE.WebGLRenderer({
+    canvas: canvas
+})
+renderer.shadowMap.enabled = true
+renderer.setSize(sizes.width, sizes.height)
+scene.background = new THREE.Color(0x87ceeb) 
+renderer.render(scene, camera)
+
 
 // Textures
 const GroundTexture = new THREE.TextureLoader().load( '/ForestGround/forrest_ground_01_diff_4k.jpg' )
@@ -44,6 +133,14 @@ const sphere = new THREE.Mesh(sphereGeometry, CloudMaterial)
 sphere.position.y = 5
 sphere.castShadow = true;
 scene.add(sphere)
+sphere.name = 'sphere'
+
+const sphere2 = new THREE.Mesh(sphereGeometry, CloudMaterial)
+sphere2.position.y = 8
+sphere2.castShadow = true;
+scene.add(sphere2)
+sphere2.name = 'sphere2'
+
 
 
 /* Clouds (From Scratch using Groups)
@@ -217,7 +314,7 @@ gltfLoader.load('/tree.glb', (gltfScene) => {
 
     gltfLoader.load('/birds2.glb', (birds) => {
 
-    birds.scene.scale.set(2,2,2)
+    birds.scene.scale.set(2,8,2)
         
     birds.scene.position.x = 5;			    
     birds.scene.position.y = 8;	
@@ -280,124 +377,61 @@ scene.add(groundPlane, groundPlane2, groundPlane3, groundPlane4, groundPlane5)
 
 
 
-/**
- * Sizes
- */
- const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight
-}
-
-window.addEventListener('resize', () => {
-    //Update Sizes
-    sizes.width = window.innerWidth,
-    sizes.height = window.innerHeight
-
-    // Update Camera
-    camera.aspect = sizes.width / sizes.height
-
-    // Update Projections
-    camera.updateProjectionMatrix()
-
-    //Update Renderer
-    renderer.setSize(sizes.width, sizes.height)
-
-    // Pixel Ratio
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)) // Caps the pixel ratio at 2
-})
-
-// Double Click for Full Screen Switch
-window.addEventListener('dblclick', () => {
-    if (!document.fullscreenElement) 
-    {
-        canvas.requestFullscreen()
-    }
-        else 
-    {
-        document.exitFullscreen()
-    }
-})
-// Lights
-
-const light = new THREE.DirectionalLight( 0xffffff, 1 );
-light.position.set(10,50,10)
-
-    // Shadows
-    light.castShadow = true
-    light.shadow.mapSize.width = 500; // default
-    light.shadow.mapSize.height = 500; // default
-    light.shadow.camera.near = 0.5; // default
-    light.shadow.camera.far = 500; // default
-
-    light.shadow.camera.top = 50
-    light.shadow.camera.right = 50
-    light.shadow.camera.bottom = -50
-    light.shadow.camera.left = -50
-    
-
-const sunsetLight = new THREE.DirectionalLight ( 0xff5566, 0.8)
-sunsetLight.position.set(-10, 0, 0)
-sunsetLight.castShadow = true
-
-scene.add( light, sunsetLight );
-// scene.add(new THREE.AmbientLight(0xffffff,0.3))
-
-const helper = new THREE.CameraHelper(light.shadow.camera)
-scene.add(helper)
-
-// Camera
-const camera = new THREE.PerspectiveCamera(100, sizes.width / sizes.height, .0001, 10000)
-camera.position.z = 15
-camera.position.x = 0
-camera.position.y = 20
-scene.add(camera)
-
-canvas.addEventListener('click', cameraUpdate)
-
-function cameraUpdate() {
-    camera.position.z += 4
-}
 
 
-// Renderer
-const renderer = new THREE.WebGLRenderer({
-    canvas: canvas
-})
-renderer.shadowMap.enabled = true
-renderer.setSize(sizes.width, sizes.height)
-scene.background = new THREE.Color(0x87ceeb)
-renderer.render(scene, camera)
-    
 
-// Controls
+// Orbit Controls
 const controls = new OrbitControls( camera, canvas)
-controls.enambleDamping = true
+/* controls.enambleDamping = true
+controls.dampingFactor = 1
 controls.minDistance = 1
-// controls.maxDistance = 25
+controls.maxPolarAngle = Math.PI/2.5
+controls.dragToLook = true
+controls.maxDistance = 25 */
+controls.lookVertical = false
 controls.update()
 
 /////////////////////////////////////////////////////////////////////////
 //// INTRO CAMERA ANIMATION USING TWEEN
-/*
-function introAnimation() {
-    // controls.enabled = false //disable orbit controls to animate the camera
+
+/* function introAnimation() {
+    controls.enabled = false //disable orbit controls to animate the camera
     
-    new TWEEN.Tween(camera.position.set(0,20,15 ))
-    .to({x: 10,y: 20, z: 50 }, 6500) // new position and time to animate
-    .delay(1000)
-    .easing(TWEEN.Easing.Quartic.InOut)
-    .start() // define delay, easing
+    new TWEEN.Tween(camera.position.set(0,30,0 )).to({ // from camera position
+        x: 0, //desired x position to go
+        y: 20, //desired y position to go
+        z: 20 //desired z position to go
+    }, 3000) // time take to animate
+    .delay(4000).easing(TWEEN.Easing.Quartic.InOut).start() // define delay, easing
+    .onComplete(function () { //on finish animation
+        controls.enabled = true //enable orbit controls
+         //enable controls limits
+        TWEEN.remove(this) // remove the animation from memory
+    })
 }
 
-introAnimation() // call intro animation on start
+canvas.addEventListener('onClick', introAnimation()) // call intro animation on start
+ */
+
+// Three MMI // Event Types: click, dblclick, contextmenu, mouseenter, mouseleave, mousedown, mouseup
+const mmi = new MouseMeshInteraction(scene, camera)
+mmi.addHandler('sphere','click' , function(mesh) { // {Target, Event Type, Function}
+    if (mesh.material === CloudMaterial) {
+        mesh.material = GroundMaterial
+    } else {
+        mesh.material = CloudMaterial
+    }
+})
+
+mmi.addHandler('sphere2','mouseenter' , function(mesh) { // {Target, Event Type, Function}
+    mesh.scale.set(2,2,2)
+})
+
+mmi.addHandler('sphere2','mouseleave' , function(mesh) { // {Target, Event Type, Function}
+    mesh.scale.set(1,1,1)
+})
 
 
-/* 
-You can see on this link the boilerplate. 
-See the function introAnimation? I'm calling it when the experience starts. 
-If you want to animate the camera on html click, just add a javascript event listener 
-to the button and call that function. No theeejs involved in this. Just pure javascript, okay?
-*/
 
 // Animate (This is needed to controls to work)
 const clock = new THREE.Clock()
@@ -413,6 +447,13 @@ const tick = () => {
     // Render
     renderer.render(scene, camera)
 
+    // TWEEN
+    TWEEN.update()
+
+    // mmi (Event Listeners)
+    mmi.update()
+
+
     // Call tick again on the next frame
     window.requestAnimationFrame(tick)
 }
@@ -420,5 +461,14 @@ const tick = () => {
 tick()
 
 
+////////////////////////////////////////////
 
-// First Person Controls
+/*
+gsap.to(controls.target,
+    {x: ,y: , z: , duration: , ease: 'power3.inOut' })
+
+gsap.to(camera.position,
+    {x: ,y: ,z: , duration: , ease: 'power3.inOut;,
+onComplte: enableButtons }, "-=2")
+
+*/
