@@ -3,7 +3,6 @@
 import './style.css'
 import * as THREE from 'three'
 
-import MouseMeshInteraction from 'three-mmi'
 import * as THREEx from 'threex.domevents'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls'
@@ -13,11 +12,18 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { gsap } from 'gsap'
 import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js'
 import { EventDispatcher } from 'three'
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
+import { Font1 } from 'three/examples/fonts/helvetiker_regular.typeface.json'
 
 
 const canvas = document.querySelector('.webgl')
 
 const scene = new THREE.Scene()
+
+// Animate (This is needed to controls to work)
+const clock = new THREE.Clock()
+const elapsedTime = clock.getElapsedTime()
 
 /**
  * Sizes
@@ -76,7 +82,7 @@ light.position.set(10,50,10)
 
 const sunsetLight = new THREE.DirectionalLight ( 0xff5566, 1)
 sunsetLight.position.set(-10, 3, 0)
-sunsetLight.castShadow = true
+sunsetLight.castShadow = false
 
 scene.add( light, sunsetLight );
 // scene.add(new THREE.AmbientLight(0xffffff,0.3))
@@ -141,6 +147,38 @@ sphere2.castShadow = true;
 scene.add(sphere2)
 sphere2.name = 'sphere2'
 
+
+// Font Loader
+const fontLoader = new FontLoader()
+
+fontLoader.load(
+    '/fonts/helvetiker_regular.typeface.json',
+    (font) =>
+    {
+        const textGeometry = new TextGeometry(
+            'Mitchell Stowman',
+            {
+                font: font,
+                size: 3,
+                height: .5,
+                curveSegments: 12,
+                bevelEnabled: true,
+                bevelThickness: 0.03,
+                bevelSize: 0.02,
+                bevelOffset: 0,
+                bevelSegments: 1,
+            }
+        )
+        const textMaterial = new THREE.MeshBasicMaterial()
+        const text = new THREE.Mesh(textGeometry, textMaterial)
+
+        textGeometry.center()
+        text.position.y = 2
+        text.position.z = -7
+
+        scene.add(text)
+    }
+)
 
 
 /* Clouds (From Scratch using Groups)
@@ -318,7 +356,7 @@ gltfLoader.load('/tree.glb', (gltfScene) => {
         
     birds.scene.position.x = 5;			    
     birds.scene.position.y = 8;	
-    birds.scene.position.z = 0;
+    birds.scene.position.z = 0
 
     // birds.scene.castShadow = true
 
@@ -414,7 +452,7 @@ canvas.addEventListener('onClick', introAnimation()) // call intro animation on 
  */
 
 // Three MMI // Event Types: click, dblclick, contextmenu, mouseenter, mouseleave, mousedown, mouseup
-const mmi = new MouseMeshInteraction(scene, camera)
+/* const mmi = new MouseMeshInteraction(scene, camera)
 mmi.addHandler('sphere','click' , function(mesh) { // {Target, Event Type, Function}
     if (mesh.material === CloudMaterial) {
         mesh.material = GroundMaterial
@@ -431,15 +469,14 @@ mmi.addHandler('sphere2','mouseleave' , function(mesh) { // {Target, Event Type,
     mesh.scale.set(1,1,1)
 })
 
+ */
 
 
-// Animate (This is needed to controls to work)
-const clock = new THREE.Clock()
 
 const tick = () => {
     const elapsedTime = clock.getElapsedTime()
     // Move Sphere
-    // sphere.position.x += Math.sin(elapsedTime) * .3
+    sphere.position.x += Math.sin(elapsedTime) * .3
 
     // Update Controls
     controls.update()
@@ -451,8 +488,7 @@ const tick = () => {
     TWEEN.update()
 
     // mmi (Event Listeners)
-    mmi.update()
-
+    // mmi.update()
 
     // Call tick again on the next frame
     window.requestAnimationFrame(tick)
