@@ -7,7 +7,7 @@ import * as THREEx from 'threex.domevents'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { FirstPersonControls } from 'three/examples/jsm/controls/FirstPersonControls'
 import { FlyControls } from 'three/examples/jsm/controls/FlyControls'
-import { DoubleSide, Group } from 'three'
+import { DoubleSide, Group, Raycaster } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { gsap } from 'gsap'
 import { TWEEN } from 'three/examples/jsm/libs/tween.module.min.js'
@@ -16,10 +16,30 @@ import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js'
 import { Font1 } from 'three/examples/fonts/helvetiker_regular.typeface.json'
 
+ 
 
 const canvas = document.querySelector('.webgl')
 
 const scene = new THREE.Scene()
+
+const loadingManager = new THREE.LoadingManager()
+
+/* loadingManager.onStart = function(url, item, total) {
+    console.log('Started Loading:' ${url})
+} */
+
+const progressBar = document.querySelector('#progress-bar');
+
+loadingManager.onProgress = function(url, loaded, total) {
+    progressBar.value = (loaded / total ) * 100;
+}
+
+const progressBarContainer = document.querySelector('.progress-bar-container')
+
+loadingManager.onLoad = function() {
+    progressBarContainer.style.display = 'none';
+}
+
 
 // Animate (This is needed to controls to work)
 const clock = new THREE.Clock()
@@ -250,14 +270,13 @@ for (let i = 0; i < 1000; i++) {
 
     // Tree Spawn Far
 
-const gltfLoader = new GLTFLoader();
+const gltfLoader = new GLTFLoader(loadingManager);
+
 
 for (let i=0; i<1000; i++) {
-
-gltfLoader.load('/tree.glb', (gltfScene) => {
-
+    let prev = null;
+    gltfLoader.load('tree.glb', (gltfScene) => {
         gltfScene.scene.scale.set(.2,.3,.2) 
-
         gltfScene.scene.position.x = (Math.random() -.5) * 300;			    
         gltfScene.scene.position.y = 0;	
         gltfScene.scene.position.z = (Math.random() -.5) * 100 + -100;
@@ -432,13 +451,13 @@ controls.update()
 /////////////////////////////////////////////////////////////////////////
 //// INTRO CAMERA ANIMATION USING TWEEN
 
-/* function introAnimation() {
+function introAnimation() {
     controls.enabled = false //disable orbit controls to animate the camera
     
-    new TWEEN.Tween(camera.position.set(0,30,0 )).to({ // from camera position
+    new TWEEN.Tween(camera.position.set(0,10,20 )).to({ // from camera position
         x: 0, //desired x position to go
-        y: 20, //desired y position to go
-        z: 20 //desired z position to go
+        y: 10, //desired y position to go
+        z: 30 //desired z position to go
     }, 3000) // time take to animate
     .delay(4000).easing(TWEEN.Easing.Quartic.InOut).start() // define delay, easing
     .onComplete(function () { //on finish animation
@@ -448,8 +467,8 @@ controls.update()
     })
 }
 
-canvas.addEventListener('onClick', introAnimation()) // call intro animation on start
- */
+// window.addEventListener('click', introAnimation) // call intro animation on start
+
 
 // Three MMI // Event Types: click, dblclick, contextmenu, mouseenter, mouseleave, mousedown, mouseup
 /* const mmi = new MouseMeshInteraction(scene, camera)
@@ -471,12 +490,23 @@ mmi.addHandler('sphere2','mouseleave' , function(mesh) { // {Target, Event Type,
 
  */
 
+// Mouse
+const mouse = new THREE.Vector2()
+
+window.addEventListener('mousemove', (event) => {
+    mouse.x = event.clientX / sizes.width * 2 - 1
+    mouse.y = -(event.clientY / sizes.height * 2 - 1) // -() inverts the result
+})
+
 
 
 const tick = () => {
     const elapsedTime = clock.getElapsedTime()
     // Move Sphere
-    sphere.position.x += Math.sin(elapsedTime) * .3
+    // sphere.position.x += Math.cos(elapsedTime) * .3
+    
+    // Raycaster
+    // raycaster.setFromCamera(mouse,camera)
 
     // Update Controls
     controls.update()
